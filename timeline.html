@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="https://kit.fontawesome.com/4ffe3bcb51.js" crossorigin="anonymous"></script>
+<body>
+<style>
+
+
+
+path {
+  fill: none;
+  stroke-width: 30px;
+}
+
+.keyCircle {
+  stroke: #fff;
+  stroke-width: 5px;
+  font-size: 32px;
+}
+
+.keyCircleText{
+    font-size: 20px;
+}
+
+.subCircle{
+  fill: white;
+  stroke-width: 5px;
+}
+
+.milestoneTitle{
+  fill: green;
+  text-transform: uppercase;
+  stroke-width: 5px;
+}
+
+.subH1{
+    stroke: #004a8e
+}
+
+.subH2{
+    stroke: #35a930
+}
+
+
+
+text {
+    font-family: Helvetica;
+}
+
+
+
+</style>
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var runLength = 700
+var radius = 100
+var margin = 100
+
+var keyDatePoints = [2020.5,2021,2022,2023,2024,2025];
+var subDatePoints = [2020.54,2021.055,2021.5,2022.08,2022.5];
+
+var milestoneDates = [
+    {
+        date:2020.6,
+        title: "Milestone Title",
+        below: false,
+        description: "Milestone Description"
+    },
+    {
+        date:2021.2,
+        title: "Milestone Title",
+        below: true,
+        description: "Milestone Description"
+    }
+]
+
+var fills = ["#bac82f","#92c34a","#1f2a5b","#0049be","#4775c2","#137be0"]
+var tooDark = [false,false,true,true,true,true]
+
+var svg = d3.select("body").append("svg")
+    .attr("width", 960)
+    .attr("height", 600);
+
+var gradient = svg.append("defs")
+  .append("linearGradient")
+    .attr("id", "gradient")
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "100%")
+    .attr("y2", "100%")
+
+gradient.append("stop")
+    .attr("offset", "0%")
+    .attr("stop-color", "#35a930")
+    .attr("stop-opacity", 1);
+
+
+gradient.append("stop")
+    .attr("offset", "30%")
+    .attr("stop-color", "#21245c")
+    .attr("stop-opacity", 1);
+
+gradient.append("stop")
+    .attr("offset", "70%")
+    .attr("stop-color", "#004b8e")
+    .attr("stop-opacity", 1);
+
+gradient.append("stop")
+    .attr("offset", "80%")
+    .attr("stop-color", "#35a930")
+    .attr("stop-opacity", 1);
+
+gradient.append("stop")
+    .attr("offset", "100%")
+    .attr("stop-color", "#c5bc25")
+    .attr("stop-opacity", 1);
+
+var path = svg.append("path")
+    .attr("d", `M${margin},${margin}
+                l${runLength},0 
+                a${radius},${radius} 0 0,1 0,${(radius * 2)}
+                l${radius-runLength},0
+                a${radius},${radius} 0 0,0 0,${(radius * 2)}
+                l${runLength},0
+                `)
+    .style("stroke", "url(#gradient)");
+
+timeScale = d3.scale.pow().exponent(0.5)
+    .domain([keyDatePoints[0]-2020, keyDatePoints[keyDatePoints.length-1]-2020])
+    .range([0, path.node().getTotalLength()])
+
+
+let keyDates = svg.selectAll(".point")
+    .data(keyDatePoints)
+    .enter()
+    .append("g")
+    .attr("transform", function(d) { return translateAlongPath(d) })
+
+keyDates
+    .append("circle")
+    .attr("r", 40)
+    .attr("class","keyCircle")
+    .style("fill", (d,i)=>fills[i]);
+    
+keyDates
+    .append("text")
+    .attr("class","keyCircleText")
+    .attr('text-anchor','middle')
+    .attr('dy',6)
+    .text((d)=>Math.floor(d))
+    .attr("fill",(d,i)=>tooDark[i]?"white":"black")
+
+let subDates = svg.selectAll(".seconds")
+    .data(subDatePoints)
+    .enter()
+    .append("g")
+    .attr("transform", function(d) { return translateAlongPath(d)})
+
+subDates
+    .append("circle")
+    .attr("r", 20)
+    .attr("class",function(d){return `subCircle subH${Math.floor(d*2%2+1)}`})
+    
+subDates
+    .append("text")
+    .attr('text-anchor','middle')
+    .attr('dy',6)
+    .text((d)=>`H${Math.floor(d*2%2)+1}`)
+
+let milestones = svg.selectAll(".milestones")
+    .data(milestoneDates)
+    .enter()
+    .append("g")
+    .attr("transform", function(d){ return translateAlongPath(d.date) })
+    
+milestones
+    .append("text")
+    .attr('class', `icon fa`)
+    .attr('text-anchor', 'middle')
+    .attr('fill','red')
+    .attr('font-weight', '900')
+    .attr('font-size', "36px")
+    .text("\uf3c5")
+
+milestones
+    .append("text")
+    .text((d)=>d.title)
+    .attr('text-anchor','middle')
+    .attr('dy',(d)=>d.below?50:-60)
+    .attr("class","milestoneTitle")
+
+milestones
+    .append("text")
+    .text((d)=>d.description)
+    .attr('text-anchor','middle')
+    .attr('dy',(d)=>d.below?70:-40)
+    .attr("class","milestoneDescription")
+
+
+// Returns an attrTween for translating along the specified path element.
+function translateAlongPath(value) {
+  var p = path.node().getPointAtLength(timeScale(value-2020));
+  return "translate(" + p.x + "," + p.y + ")";
+}
+
+</script>
