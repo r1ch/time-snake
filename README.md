@@ -1,6 +1,6 @@
 # time-snake
 Draws a timeline based on an array of dates
-
+```
 var milestoneDates = [
     {
         date:2020.6, // the date as a decimal year
@@ -15,3 +15,4 @@ var milestoneDates = [
         description: "Milestone Description"
     }
 ]
+```
