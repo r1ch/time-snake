@@ -3,9 +3,6 @@
 <script src="https://kit.fontawesome.com/4ffe3bcb51.js" crossorigin="anonymous"></script>
 <body>
 <style>
-
-
-
 path {
   fill: none;
   stroke-width: 30px;
@@ -78,7 +75,7 @@ var fills = ["#bac82f","#92c34a","#1f2a5b","#0049be","#4775c2","#137be0"]
 var tooDark = [false,false,true,true,true,true]
 
 var svg = d3.select("body").append("svg")
-    .attr("width", 960)
+    .attr("width", 1200)
     .attr("height", 600);
 
 var gradient = svg.append("defs")
@@ -180,6 +177,7 @@ milestones
     .attr('fill','red')
     .attr('font-weight', '900')
     .attr('font-size', "36px")
+    .attr('transform',function(d){return d.below?"rotate(180)":""})
     .text("\uf3c5")
 
 milestones
@@ -195,9 +193,7 @@ milestones
     .attr('text-anchor','middle')
     .attr('dy',(d)=>d.below?70:-40)
     .attr("class","milestoneDescription")
-
-
-// Returns an attrTween for translating along the specified path element.
+  
 function translateAlongPath(value) {
   var p = path.node().getPointAtLength(timeScale(value-2020));
   return "translate(" + p.x + "," + p.y + ")";
