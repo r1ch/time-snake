@@ -3,6 +3,9 @@
 <script src="https://kit.fontawesome.com/4ffe3bcb51.js" crossorigin="anonymous"></script>
 <body>
 <style>
+
+
+
 path {
   fill: none;
   stroke-width: 30px;
@@ -25,14 +28,13 @@ path {
 
 .milestoneTitle{
   fill: green;
-  text-transform: uppercase;
-  font-size: 12px;
+  font-size: 18px;
   stroke-width: 5px;
 }
 
 .milestoneDescription{
   fill: lightslategray;
-  font-size: 10px;
+  font-size: 12px;
   stroke-width: 5px;
 }
 
@@ -44,6 +46,12 @@ path {
     stroke: #35a930
 }
 
+.marker{
+    fill:red;
+}
+.icon{
+    fill:white;
+}
 
 
 text {
@@ -51,32 +59,53 @@ text {
 }
 
 
+
 </style>
 <script src="https://d3js.org/d3.v3.min.js"></script>
+<script src="export.js"></script>
 <script>
-  
+
 var runLength = 900
-var radius = 80
+var radius = 100
 var margin = 100
 
 var keyDatePoints = [2020.5,2021,2022,2023,2024,2025];
-var subDatePoints = [2020.54,2021.055,2021.5,2022.08,2022.5];
+var subDatePoints = [2020.535,2021.05,2021.5,2022.07,2022.5];
 
 var milestoneDates = [
     {
-        date:2020.6,
+        date:2020.72,
         title: "Milestone Title",
-        below: false,
-        description: "Milestone Description"
+        description: "Milestone Description",
+        hide:true,
+        strategy: "handshake"
     },
     {
-        date:2021.2,
+        date:2020.76,
         title: "Milestone Title",
         below: true,
-        description: "Milestone Description"
-    }
+        description: "Milestone Description",
+        hide:true,
+        strategy: "spanner"
+    },
+    
 ]
-
+milestoneDates.forEach(d=>d.title=d.title.toUpperCase())
+var iconPath= "M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67-9.535 13.774-29.93 13.773-39.464 0z";
+var icons = {
+    marker : {
+        path: "M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67-9.535 13.774-29.93 13.773-39.464 0z",
+        offset : [-384/2,-512]
+    },
+    handshake: {
+        path: "M434.7 64h-85.9c-8 0-15.7 3-21.6 8.4l-98.3 90c-.1.1-.2.3-.3.4-16.6 15.6-16.3 40.5-2.1 56 12.7 13.9 39.4 17.6 56.1 2.7.1-.1.3-.1.4-.2l79.9-73.2c6.5-5.9 16.7-5.5 22.6 1 6 6.5 5.5 16.6-1 22.6l-26.1 23.9L504 313.8c2.9 2.4 5.5 5 7.9 7.7V128l-54.6-54.6c-5.9-6-14.1-9.4-22.6-9.4zM544 128.2v223.9c0 17.7 14.3 32 32 32h64V128.2h-96zm48 223.9c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.2 16-16 16zM0 384h64c17.7 0 32-14.3 32-32V128.2H0V384zm48-63.9c8.8 0 16 7.2 16 16s-7.2 16-16 16-16-7.2-16-16c0-8.9 7.2-16 16-16zm435.9 18.6L334.6 217.5l-30 27.5c-29.7 27.1-75.2 24.5-101.7-4.4-26.9-29.4-24.8-74.9 4.4-101.7L289.1 64h-83.8c-8.5 0-16.6 3.4-22.6 9.4L128 128v223.9h18.3l90.5 81.9c27.4 22.3 67.7 18.1 90-9.3l.2-.2 17.9 15.5c15.9 13 39.4 10.5 52.3-5.4l31.4-38.6 5.4 4.4c13.7 11.1 33.9 9.1 45-4.7l9.5-11.7c11.2-13.8 9.1-33.9-4.6-45.1z",
+        offset : [-640/2,-384/2]
+    },
+    spanner: {
+        path: "M507.73 109.1c-2.24-9.03-13.54-12.09-20.12-5.51l-74.36 74.36-67.88-11.31-11.31-67.88 74.36-74.36c6.62-6.62 3.43-17.9-5.66-20.16-47.38-11.74-99.55.91-136.58 37.93-39.64 39.64-50.55 97.1-34.05 147.2L18.74 402.76c-24.99 24.99-24.99 65.51 0 90.5 24.99 24.99 65.51 24.99 90.5 0l213.21-213.21c50.12 16.71 107.47 5.68 147.37-34.22 37.07-37.07 49.7-89.32 37.91-136.73zM64 472c-13.25 0-24-10.75-24-24 0-13.26 10.75-24 24-24s24 10.74 24 24c0 13.25-10.75 24-24 24z",
+        offset : [-512/2,-512/2]
+    }
+}
 var fills = ["#bac82f","#92c34a","#1f2a5b","#0049be","#4775c2","#137be0"]
 var tooDark = [false,false,true,true,true,true]
 
@@ -126,7 +155,7 @@ var path = svg.append("path")
                 a${radius},${radius} 0 0,0 0,${(radius * 2)}
                 l${runLength},0
                 `)
-    .style("stroke", "url(#gradient)");
+    .style("stroke", "url(#gradient)")
 
 timeScale = d3.scale.pow().exponent(0.5)
     .domain([keyDatePoints[0]-2020, keyDatePoints[keyDatePoints.length-1]-2020])
@@ -138,6 +167,7 @@ let keyDates = svg.selectAll(".point")
     .enter()
     .append("g")
     .attr("transform", function(d) { return translateAlongPath(d) })
+
 
 keyDates
     .append("circle")
@@ -152,6 +182,8 @@ keyDates
     .attr('dy',6)
     .text((d)=>Math.floor(d))
     .attr("fill",(d,i)=>tooDark[i]?"white":"black")
+
+
 
 let subDates = svg.selectAll(".seconds")
     .data(subDatePoints)
@@ -175,16 +207,23 @@ let milestones = svg.selectAll(".milestones")
     .enter()
     .append("g")
     .attr("transform", function(d){ return translateAlongPath(d.date) })
+
+milestones
+    .append("path")
+    .attr('class', `marker`)
+    .attr('d',icons.marker.path)
+    .attr('transform',function(d){return `scale(0.07) rotate(${d.below?180:0}) translate(${icons.marker.offset})`})
     
 milestones
-    .append("text")
-    .attr('class', `icon fa`)
-    .attr('text-anchor', 'middle')
-    .attr('fill','red')
-    .attr('font-weight', '900')
-    .attr('font-size', "36px")
-    .attr('transform',function(d){return d.below?"rotate(180)":""})
-    .text("\uf3c5")
+    .append("path")
+    .attr('class', `icon`)
+    .attr('d',(d)=>icons[d.strategy].path)
+    .attr('transform',function(d){ 
+        [x,y] = icons[d.strategy].offset
+        y += d.below? 725:-725
+        console.log(x,y)
+        return `scale(0.03) translate(${x},${y})`
+    })
 
 milestones
     .append("text")
@@ -197,12 +236,39 @@ milestones
     .append("text")
     .text((d)=>d.description)
     .attr('text-anchor','middle')
-    .attr('dy',(d)=>d.below?70:-40)
+    .attr('dy',(d)=>d.below?65:-45)
     .attr("class","milestoneDescription")
-  
+
+milestones
+    .append("text")
+    .text((d)=>d.description)
+    .attr('text-anchor','middle')
+    .attr('dy',(d)=>d.below?65:-45)
+    .attr("class","milestoneDescription")
+
+
+// Returns an attrTween for translating along the specified path element.
 function translateAlongPath(value) {
   var p = path.node().getPointAtLength(timeScale(value-2020));
   return "translate(" + p.x + "," + p.y + ")";
 }
+
+function slideTo(value){
+  return function(d, i, a) {
+      console.log(d,i,a)
+    return function(t) {
+      var p = path.node().getPointAtLength(timeScale(d.date-2020+t*value));
+      return "translate(" + p.x + "," + p.y + ")";
+    };
+  };
+}
+
+document.write("<table>")
+milestoneDates.sort((a,b)=>a.date>b.date).forEach(m=>{
+    document.write(
+        `<tr><td>${m.title}</td><td>${Math.floor(m.date)} H${m.date%1 >= .5 ? 2 : 1}</td><td>${m.description}</td></tr>`
+    )
+})
+document.write("</table>")
 
 </script>
