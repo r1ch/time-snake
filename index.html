@@ -263,6 +263,15 @@ function slideTo(value){
   };
 }
 
+
+function getCSV(){
+    var config = {
+    filename: 'TimeSnake',
+  }
+  d3_save_svg.save(d3.select('svg').node(), config);
+}
+
+
 document.write("<table>")
 milestoneDates.sort((a,b)=>a.date>b.date).forEach(m=>{
     document.write(
@@ -272,3 +281,4 @@ milestoneDates.sort((a,b)=>a.date>b.date).forEach(m=>{
 document.write("</table>")
 
 </script>
+<a href = "#" onclick='getCSV()'>Download as CSV ( only works in Chrome )</a>
